@@ -5,13 +5,15 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Dropdown } from 'primereact/dropdown';
-
+import axios from 'axios';
 interface DropdownItem {
     name: string;
     code: string;
 }
 
 const FormLayoutDemo = () => {
+    const [userData, setUserData] = useState({ username: '',firstName: '',lastName: '',age: 0,phone: '', email: '' });
+    const storedToken = localStorage.getItem('token');
     const [dropdownItem, setDropdownItem] = useState<DropdownItem | null>(null);
     const dropdownItems: DropdownItem[] = useMemo(
         () => [
@@ -24,120 +26,63 @@ const FormLayoutDemo = () => {
 
     useEffect(() => {
         setDropdownItem(dropdownItems[0]);
-    }, [dropdownItems]);
 
+        const fetchUserInfo = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/api/auth/user/userInfo', {
+                    headers: {
+                        Authorization: `Bearer ${storedToken}`
+                    }
+                });
+
+                if (response.status === 200) {
+                    setUserData({ username: response.data.username,firstName: response.data.firstName,lastName: response.data.lastName,age: response.data.age,phone: response.data.phone, email: response.data.email});
+                    console.log(response.data.firstName); // Log or set the retrieved user info in state
+                }
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+                // Handle error
+            }
+        };
+
+        fetchUserInfo(); // Invoke the fetchUserInfo function
+
+    }, [dropdownItems, storedToken]);
+
+ 
     return (
         <div className="grid">
-            <div className="col-12 md:col-6">
-                <div className="card p-fluid">
-                    <h5>Vertical</h5>
-                    <div className="field">
-                        <label htmlFor="name1">Name</label>
-                        <InputText id="name1" type="text" />
-                    </div>
-                    <div className="field">
-                        <label htmlFor="email1">Email</label>
-                        <InputText id="email1" type="text" />
-                    </div>
-                    <div className="field">
-                        <label htmlFor="age1">Age</label>
-                        <InputText id="age1" type="text" />
-                    </div>
-                </div>
-
-                <div className="card p-fluid">
-                    <h5>Vertical Grid</h5>
-                    <div className="formgrid grid">
-                        <div className="field col">
-                            <label htmlFor="name2">Name</label>
-                            <InputText id="name2" type="text" />
-                        </div>
-                        <div className="field col">
-                            <label htmlFor="email2">Email</label>
-                            <InputText id="email2" type="text" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="col-12 md:col-6">
-                <div className="card p-fluid">
-                    <h5>Horizontal</h5>
-                    <div className="field grid">
-                        <label htmlFor="name3" className="col-12 mb-2 md:col-2 md:mb-0">
-                            Name
-                        </label>
-                        <div className="col-12 md:col-10">
-                            <InputText id="name3" type="text" />
-                        </div>
-                    </div>
-                    <div className="field grid">
-                        <label htmlFor="email3" className="col-12 mb-2 md:col-2 md:mb-0">
-                            Email
-                        </label>
-                        <div className="col-12 md:col-10">
-                            <InputText id="email3" type="text" />
-                        </div>
-                    </div>
-                </div>
-
+              <div className="col-12">
                 <div className="card">
-                    <h5>Inline</h5>
-                    <div className="formgroup-inline">
-                        <div className="field">
-                            <label htmlFor="firstname1" className="p-sr-only">
-                                Firstname
-                            </label>
-                            <InputText id="firstname1" type="text" placeholder="Firstname" />
-                        </div>
-                        <div className="field">
-                            <label htmlFor="lastname1" className="p-sr-only">
-                                Lastname
-                            </label>
-                            <InputText id="lastname1" type="text" placeholder="Lastname" />
-                        </div>
-                        <Button label="Submit"></Button>
-                    </div>
-                </div>
-
-                <div className="card">
-                    <h5>Help Text</h5>
-                    <div className="field p-fluid">
-                        <label htmlFor="username">Username</label>
-                        <InputText id="username" type="text" />
-                        <small>Enter your username to reset your password.</small>
-                    </div>
-                </div>
-            </div>
-
-            <div className="col-12">
-                <div className="card">
-                    <h5>Advanced</h5>
+                    <h5>Mettre à jour vos informations personnelles</h5>
                     <div className="p-fluid formgrid grid">
-                        <div className="field col-12 md:col-6">
-                            <label htmlFor="firstname2">Firstname</label>
-                            <InputText id="firstname2" type="text" />
+                    <div className="field col-12 md:col-6">
+                        
+                            <label htmlFor="firstname2">Nom d'utilisateur</label>
+                            <InputText   value={userData.username} id="firstname2" type="text" />
                         </div>
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="lastname2">Lastname</label>
-                            <InputText id="lastname2" type="text" />
-                        </div>
-                        <div className="field col-12">
-                            <label htmlFor="address">Address</label>
-                            <InputTextarea id="address" rows={4} />
+                            <label htmlFor="firstname2">Prénom</label>
+                            <InputText   value={userData.firstName} id="firstname2" type="text" />
                         </div>
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="city">City</label>
-                            <InputText id="city" type="text" />
+                            <label htmlFor="lastname2">Nom </label>
+                            <InputText value={userData.lastName} id="lastname2" type="text" />
                         </div>
-                        <div className="field col-12 md:col-3">
-                            <label htmlFor="state">State</label>
-                            <Dropdown id="state" value={dropdownItem} onChange={(e) => setDropdownItem(e.value)} options={dropdownItems} optionLabel="name" placeholder="Select One"></Dropdown>
+                        
+                        <div className="field col-12 md:col-6">
+                            <label htmlFor="lastname2">Age</label>
+                            <InputText value={userData.age.toString()} id="lastname2" type="text" />
                         </div>
-                        <div className="field col-12 md:col-3">
-                            <label htmlFor="zip">Zip</label>
-                            <InputText id="zip" type="text" />
+                        <div className="field col-12 md:col-6">
+                            <label htmlFor="lastname2">Téléphone</label>
+                            <InputText value={userData.phone} id="lastname2" type="text" />
                         </div>
+                        <div className="field col-12 md:col-6">
+                            <label htmlFor="lastname2">Email</label>
+                            <InputText value={userData.email} id="lastname2" type="text" />
+                        </div>
+                        <Button label="Modifier" severity="info" text />
                     </div>
                 </div>
             </div>
