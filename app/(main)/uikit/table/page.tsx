@@ -40,7 +40,7 @@ const TableDemo = () => {
     try {
       const response = await axios.get(`http://localhost:8080/api/auth/user/userDetails/${rowData.username}`, {
         headers: {
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2YiLCJpYXQiOjE3MDEyMjM3NDksImV4CI6MTcwMTIyNzM0OX0.hKW8TPKawIe6C9F6qRdbMgHh6VivnwAJiFLjL6_ukPE`,
+          Authorization: `Bearer ${storedToken}`,
         },
       });
 
