@@ -19,6 +19,16 @@ import { Demo } from '../../../../types/types';
 import axios from 'axios';
 const Crud = () => {
 
+    interface Room {
+        id: string;
+        name: string;
+        capacity: number;
+        price: number;
+        surface: number;
+        roomEquipement: string;
+        entertaiment: string;
+        other: string;
+      }
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
 let emptyProduct: {
     id: string;
@@ -52,7 +62,16 @@ const storedToken = localStorage.getItem('token');
     const [globalFilter, setGlobalFilter] = useState('');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
-
+    const [rooms, setRooms] = useState<Room[]>([]);
+  const [newRoom, setNewRoom] = useState({
+    name: '',
+    capacity: 0,
+    price: '0.00',
+    surface: '0.0',
+    roomEquipement: '',
+    entertaiment: '',
+    other: '',
+  });
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -67,7 +86,7 @@ const storedToken = localStorage.getItem('token');
         };
     
         fetchData();
-    }, []);
+    }, [[storedToken]]);
 
     const formatCurrency = (value: number) => {
         return value.toLocaleString('en-US', {
@@ -275,7 +294,31 @@ const storedToken = localStorage.getItem('token');
         );
     };
 
-    
+    const addRoom = async () => {
+        try {
+          const response = await axios.post(
+            'http://localhost:8080/api/auth/rooms/add',
+            newRoom,
+            {
+              headers: {
+                Authorization: `Bearer ${storedToken}`,
+              },
+            }
+          );
+          setRooms([...rooms, response.data]); 
+          setNewRoom({
+            name: '',
+            capacity: 0,
+            price: '0.00',
+            surface: '0.0',
+            roomEquipement: '',
+            entertaiment: '',
+            other: '',
+          });
+        } catch (error) {
+          console.error('Error adding room:', error);
+        }
+      };
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
@@ -290,7 +333,7 @@ const storedToken = localStorage.getItem('token');
     const productDialogFooter = (
         <>
             <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text  />
+            <Button label="Save" icon="pi pi-check" text  onClick={addRoom} />
         </>
     );
     const deleteProductDialogFooter = (
@@ -305,7 +348,7 @@ const storedToken = localStorage.getItem('token');
             <Button label="Yes" icon="pi pi-check" text  />
         </>
     );
-
+   
     return (
         <div className="grid crud-demo">
             <div className="col-12">
@@ -340,12 +383,13 @@ const storedToken = localStorage.getItem('token');
 <Column header="Actions" body={actionBodyTemplate} style={{ textAlign: 'center', width: '8em' }} />
                     </DataTable>
 
-                    <Dialog visible={productDialog} style={{ width: '450px' }} header="Product Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
+                    <Dialog visible={productDialog} style={{ width: '450px' }} header="Room Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
                         <div className="field">
                             <label htmlFor="name">Name</label>
                             <InputText
                                 id="name"
-                              
+                                value={newRoom.name}
+                                onChange={(e) => setNewRoom({ ...newRoom, name: e.target.value })}
                                 required
                                 autoFocus
                                 className={classNames({
@@ -354,43 +398,52 @@ const storedToken = localStorage.getItem('token');
                             />
                             {submitted && <small className="p-invalid">Name is required.</small>}
                         </div>
+                       
                         <div className="field">
-                            <label htmlFor="description">Description</label>
-                            <InputTextarea id="description"  required rows={3} cols={20} />
+                            <label htmlFor="name">Capacity</label>
+                            <InputText
+                                id="name"
+                                type="number"
+                                value={newRoom.capacity.toString()}
+                                onChange={(e) => setNewRoom({ ...newRoom, capacity: parseInt(e.target.value, 10) })}
+                                required
+                                autoFocus
+                                className={classNames({
+                                    'p-invalid': submitted 
+                                })}
+                            />
+                            {submitted && <small className="p-invalid">Capacity is required.</small>}
                         </div>
-
-                        <div className="field">
-                            <label className="mb-3">Category</label>
-                            <div className="formgrid grid">
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category1" name="category" value="Accessories" />
-                                    <label htmlFor="category1">Accessories</label>
-                                </div>
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category2" name="category" value="Clothing"  />
-                                    <label htmlFor="category2">Clothing</label>
-                                </div>
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category3" name="category" value="Electronics"  />
-                                    <label htmlFor="category3">Electronics</label>
-                                </div>
-                                <div className="field-radiobutton col-6">
-                                    <RadioButton inputId="category4" name="category" value="Fitness"   />
-                                    <label htmlFor="category4">Fitness</label>
-                                </div>
-                            </div>
-                        </div>
-
                         <div className="formgrid grid">
                             <div className="field col">
                                 <label htmlFor="price">Price</label>
-                                <InputNumber id="price"  mode="currency" currency="USD" locale="en-US" />
+                                <InputText id="price" 
+                                value={newRoom.price}
+                                onChange={(e) => setNewRoom({ ...newRoom, price:e.target.value })}
+                                 />
                             </div>
-                            <div className="field col">
-                                <label htmlFor="quantity">Quantity</label>
-                                <InputNumber id="quantity"   />
-                            </div>
+                           
                         </div>
+                        <div>
+                            {submitted && <small className="p-invalid">Price is required.</small>}
+                        </div>
+                        <div className="field">
+                            <label htmlFor="description">Room equipement</label>
+                            <InputTextarea id="description"    value={newRoom.roomEquipement}
+                                onChange={(e) => setNewRoom({ ...newRoom, roomEquipement:e.target.value })} required rows={3} cols={20} />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="description">entertaiment</label>
+                            <InputTextarea id="description"  value={newRoom.entertaiment}
+                                onChange={(e) => setNewRoom({ ...newRoom, entertaiment:e.target.value })} required rows={3} cols={20} />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="description">Other</label>
+                            <InputTextarea id="description"  value={newRoom.other}
+                                onChange={(e) => setNewRoom({ ...newRoom, other:e.target.value })} required rows={3} cols={20} />
+                        </div>
+
+                        
                     </Dialog>
 
                     <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
