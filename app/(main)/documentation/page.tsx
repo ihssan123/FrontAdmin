@@ -135,10 +135,7 @@ interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-export const metadata: Metadata = {
-    title: "Sakai by PrimeReact | Free Admin Template for NextJS",
-    ...
-  };
+
 
 export default function MainLayout({ children }: MainLayoutProps) {
   return <Layout>{children}</Layout>;
@@ -161,7 +158,7 @@ interface FullPageLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: "Sakai by PrimeReact | Free Admin Template for NextJS",
+    title: " | Free Admin Template for NextJS",
     ...
   };
 

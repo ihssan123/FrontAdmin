@@ -188,7 +188,6 @@ const storedToken = localStorage.getItem('token');
             <React.Fragment>
                 <div className="my-2">
                     <Button label="New" icon="pi pi-plus" severity="success" className=" mr-2" onClick={openNew} />
-                    <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedProducts || !(selectedProducts as any).length} />
                 </div>
             </React.Fragment>
         );
@@ -243,7 +242,6 @@ const storedToken = localStorage.getItem('token');
     const rightToolbarTemplate = () => {
         return (
             <React.Fragment>
-                <FileUpload mode="basic" accept="image/*" maxFileSize={1000000} chooseLabel="Import" className="mr-2 inline-block" />
                 <Button label="Export" icon="pi pi-upload" severity="help" onClick={exportCSV} />
             </React.Fragment>
         );
@@ -325,7 +323,9 @@ const storedToken = localStorage.getItem('token');
             }
           );
           setProductDialog1(true);
-      
+          hideDeleteProductDialog();
+          cancelAction();
+          hideDeleteProductsDialog ();
           console.log(response.data);
         } catch (error) {
           console.error('Error updating room:', error);
@@ -399,7 +399,8 @@ const storedToken = localStorage.getItem('token');
             <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductsDialog} />
             <Button label="Yes" icon="pi pi-check" text  onClick={() => deleteRoom(updatedRoom.name)}/>
         </>
-    );const deleteRoom = async (roomId: string) => {
+    );
+    const deleteRoom = async (roomId: string) => {
         try {
           const response = await fetch(
             `http://localhost:8080/api/auth/rooms/delete/${roomId}`,
@@ -411,12 +412,12 @@ const storedToken = localStorage.getItem('token');
               },
             }
           );
-      
           if (!response.ok) {
             throw new Error(`Failed to delete room. Status: ${response.status}`);
           }
-      
-          
+          hideDeleteProductDialog();
+          cancelAction();
+          hideDeleteProductsDialog ();
           console.log(response);
         } catch (error) {
           console.error(error);
@@ -443,7 +444,7 @@ const storedToken = localStorage.getItem('token');
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
                         globalFilter={globalFilter}
-                        emptyMessage="No products found."
+                        emptyMessage="No room found."
                         header={header}
                         responsiveLayout="scroll"
                     >
