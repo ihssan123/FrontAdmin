@@ -54,6 +54,7 @@ const storedToken = localStorage.getItem('token');
 
     const [products, setProducts] = useState(null);
     const [productDialog, setProductDialog] = useState(false);
+    const [productDialog1, setProductDialog1] = useState(false);
     const [deleteProductDialog, setDeleteProductDialog] = useState(false);
     const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
     
@@ -63,6 +64,15 @@ const storedToken = localStorage.getItem('token');
     const toast = useRef<Toast>(null);
     const dt = useRef<DataTable<any>>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
+    const [updatedRoom, setUpdatedRoom] = useState<Room>({
+    name: '',
+    capacity: 0,
+    price: '0.00',
+    surface: '0.0',
+    roomEquipement: '',
+    entertaiment: '',
+    other: '',
+    });
   const [newRoom, setNewRoom] = useState({
     name: '',
     capacity: 0,
@@ -125,8 +135,16 @@ const storedToken = localStorage.getItem('token');
    
 
     const editProduct = (product: Demo.Product) => {
-       
-        setProductDialog(true);
+        setUpdatedRoom({
+            name: product.name,
+            capacity: product.capacity,
+            price: product.price.toString(),
+            surface: product.surface.toString(),
+            roomEquipement: product.roomEquipement,
+            entertaiment: product.entertaiment,
+            other: product.other,
+        });
+        setProductDialog1(true);
     };
 
     const confirmDeleteProduct = (product: Demo.Product) => {
@@ -293,7 +311,35 @@ const storedToken = localStorage.getItem('token');
             </>
         );
     };
-
+    const updateRoom = async (roomId: string) => {
+        try {
+      
+          const response = await axios.put(
+            `http://localhost:8080/api/auth/rooms/update/${roomId}`,
+            updatedRoom,
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${storedToken}`,
+              },
+            }
+          );
+          setProductDialog1(true);
+      
+          console.log(response.data);
+        } catch (error) {
+          console.error('Error updating room:', error);
+        }
+      };
+      
+      
+      
+      
+      // Example usage
+      
+      
+      
+      
     const addRoom = async () => {
         try {
           const response = await axios.post(
@@ -322,13 +368,19 @@ const storedToken = localStorage.getItem('token');
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Manage Products</h5>
+            <h5 className="m-0">List of Rooms</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.currentTarget.value)} placeholder="Search..." />
             </span>
         </div>
     );
+    const cancelAction = () => {
+        // Add your custom cancel action here
+        console.log("Custom Cancel Action");
+        // Optionally, you can close the dialog after your custom action
+        setProductDialog1(false);
+    };
 
     const productDialogFooter = (
         <>
@@ -339,15 +391,37 @@ const storedToken = localStorage.getItem('token');
     const deleteProductDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductDialog} />
-            <Button label="Yes" icon="pi pi-check" text  />
+            <Button label="Yes" icon="pi pi-check" text onClick={() => deleteRoom(updatedRoom.name)} />
         </>
     );
     const deleteProductsDialogFooter = (
         <>
             <Button label="No" icon="pi pi-times" text onClick={hideDeleteProductsDialog} />
-            <Button label="Yes" icon="pi pi-check" text  />
+            <Button label="Yes" icon="pi pi-check" text  onClick={() => deleteRoom(updatedRoom.name)}/>
         </>
-    );
+    );const deleteRoom = async (roomId: string) => {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/auth/rooms/delete/${roomId}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${storedToken}`,
+              },
+            }
+          );
+      
+          if (!response.ok) {
+            throw new Error(`Failed to delete room. Status: ${response.status}`);
+          }
+      
+          
+          console.log(response);
+        } catch (error) {
+          console.error(error);
+        }
+      };
    
     return (
         <div className="grid crud-demo">
@@ -445,15 +519,80 @@ const storedToken = localStorage.getItem('token');
 
                         
                     </Dialog>
+                    <Dialog visible={productDialog1} style={{ width: '450px' }} header="Room Details" modal className="p-fluid" footer={null} onHide={() => cancelAction()}>
+                        <div className="field">
+                            <label htmlFor="name">Name</label>
+                            <InputText
+                                id="name"
+                                value={updatedRoom.name}
+                                onChange={(e) => setUpdatedRoom({ ...updatedRoom, name: e.target.value })}
+                                required
+                                autoFocus
+                                className={classNames({
+                                    'p-invalid': submitted 
+                                })}
+                            />
+                            {submitted && <small className="p-invalid">Name is required.</small>}
+                        </div>
+                       
+                        <div className="field">
+                            <label htmlFor="name">Capacity</label>
+                            <InputText
+                                id="name"
+                                type="number"
+                                value={updatedRoom.capacity.toString()}
+                                onChange={(e) => setUpdatedRoom({ ...updatedRoom, capacity: parseInt(e.target.value, 10) })}
+                                required
+                                autoFocus
+                                className={classNames({
+                                    'p-invalid': submitted 
+                                })}
+                            />
+                            {submitted && <small className="p-invalid">Capacity is required.</small>}
+                        </div>
+                        <div className="formgrid grid">
+                            <div className="field col">
+                                <label htmlFor="price">Price</label>
+                                <InputText id="price" 
+                                value={updatedRoom.price}
+                                onChange={(e) => setUpdatedRoom({ ...updatedRoom, price:e.target.value })}
+                                 />
+                            </div>
+                           
+                        </div>
+                        <div>
+                            {submitted && <small className="p-invalid">Price is required.</small>}
+                        </div>
+                        <div className="field">
+                            <label htmlFor="description">Room equipement</label>
+                            <InputTextarea id="description"    value={updatedRoom.roomEquipement}
+                                onChange={(e) => setUpdatedRoom({ ...updatedRoom, roomEquipement:e.target.value })} required rows={3} cols={20} />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="description">entertaiment</label>
+                            <InputTextarea id="description"  value={updatedRoom.entertaiment}
+                                onChange={(e) => setUpdatedRoom({ ...updatedRoom, entertaiment:e.target.value })} required rows={3} cols={20} />
+                        </div>
+                        <div className="field">
+                            <label htmlFor="description">Other</label>
+                            <InputTextarea id="description"  value={updatedRoom.other}
+                                onChange={(e) => setUpdatedRoom({ ...updatedRoom, other:e.target.value })} required rows={3} cols={20} />
+                        </div>
+                        <div className="p-dialog-footer">
+                        <Button label="Cancelll" icon="pi pi-times" className="p-button-text" onClick={cancelAction} />
+        <Button label="Save" icon="pi pi-check" className="p-button-text"  onClick={() => updateRoom(updatedRoom.name)} />
+    </div>
+                        
+                    </Dialog>
 
-                    <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
+                    <Dialog visible={deleteProductDialog} style={{ width: '450px' }} header="Confirmmmm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                            
                         </div>
                     </Dialog>
 
-                    <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
+                    <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="Confirmm" modal footer={deleteProductsDialogFooter} onHide={hideDeleteProductsDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             
