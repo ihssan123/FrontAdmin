@@ -91,19 +91,19 @@ const FormLayoutDemo = () => {
         <div className="grid">
               <div className="col-12">
                 <div className="card">
-                    <h5>Mettre à jour vos informations personnelles</h5>
+                    <h5>Update your personal information</h5>
                     <div className="p-fluid formgrid grid">
                     <div className="field col-12 md:col-6">
                         
-                            <label htmlFor="firstname2">Nom d'utilisateur</label>
+                            <label htmlFor="firstname2">Username</label>
                             <InputText   value={userData.username}  id="firstname2" type="text" />
                         </div>
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="firstname2">Prénom</label>
+                            <label htmlFor="firstname2">FirstName</label>
                             <InputText   value={userData.firstName} onChange={(e) => {handleFirstNameChange(e)}} id="firstname2" type="text" />
                         </div>
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="lastname2">Nom </label>
+                            <label htmlFor="lastname2">LastName </label>
                             <InputText value={userData.lastName}  onChange={(e) => {handleLastNameChange(e)}} id="lastname2" type="text" />
                         </div>
                         
@@ -112,7 +112,7 @@ const FormLayoutDemo = () => {
                             <InputText value={userData.age.toString()} onChange={(e) => {handleAgeChange(e)}} id="lastname2" type="text" />
                         </div>
                         <div className="field col-12 md:col-6">
-                            <label htmlFor="lastname2">Téléphone</label>
+                            <label htmlFor="lastname2">Phone</label>
                             <InputText value={userData.phone} id="lastname2" onChange={(e) => {handlePhoneChange(e)}} type="text" />
                         </div>
                         <div className="field col-12 md:col-6">

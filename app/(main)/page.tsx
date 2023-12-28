@@ -194,7 +194,7 @@ const Dashboard = () => {
 
             <div className="col-12 xl:col-6">
                 <div className="card">
-                    <h5>Recent Rooms</h5>
+                    <h5>The most recommended rooms</h5>
                     <DataTable value={staticData} rows={5} paginator responsiveLayout="scroll">
                         <Column field="name" header="Name" sortable style={{ width: '35%' }} />
                         <Column field="price" header="Price" sortable style={{ width: '35%' }} body={(data) => formatCurrency(data.price)} />
